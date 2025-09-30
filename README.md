@@ -2,6 +2,10 @@
 
 A fully functional, dynamic blog platform built with Next.js 15, MongoDB, and TypeScript. Features include blog management, search functionality, tag filtering, pagination, and an admin interface.
 
+## 🚀 Live Demo
+
+**[View Live Application](https://blog-app-assignment-3.vercel.app/)**
+
 ## Features
 
 ### Core Features
