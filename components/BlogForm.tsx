@@ -2,29 +2,33 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
+interface Blog {
+  title: string;
+  slug: string;
+  content: string;
+  excerpt: string;
+  tags: string[];
+  images: string[];
+  published: boolean;
+}
+
 interface BlogFormProps {
-  initialData?: {
-    title: string;
-    slug: string;
-    content: string;
-    excerpt: string;
-    tags: string[];
-    images: string[];
-    published: boolean;
-  };
+  initialData?: Blog;
+  blog?: Blog;
   isEdit?: boolean;
 }
 
-export default function BlogForm({ initialData, isEdit = false }: BlogFormProps) {
+export default function BlogForm({ initialData, blog, isEdit = false }: BlogFormProps) {
+  const blogData = blog || initialData;
   const router = useRouter();
   const [formData, setFormData] = useState({
-    title: initialData?.title || '',
-    slug: initialData?.slug || '',
-    content: initialData?.content || '',
-    excerpt: initialData?.excerpt || '',
-    tags: initialData?.tags?.join(', ') || '',
-    images: initialData?.images?.join(', ') || '',
-    published: initialData?.published ?? true,
+    title: blogData?.title || '',
+    slug: blogData?.slug || '',
+    content: blogData?.content || '',
+    excerpt: blogData?.excerpt || '',
+    tags: blogData?.tags?.join(', ') || '',
+    images: blogData?.images?.join(', ') || '',
+    published: blogData?.published ?? true,
   });
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -91,7 +95,7 @@ export default function BlogForm({ initialData, isEdit = false }: BlogFormProps)
     console.log('Images array:', blogData.images);
 
     try {
-      const url = isEdit ? `/api/blogs/${initialData?.slug}` : '/api/blogs';
+      const url = isEdit ? `/api/blogs/${blogData?.slug}` : '/api/blogs';
       const method = isEdit ? 'PUT' : 'POST';
       
       const token = localStorage.getItem('token');

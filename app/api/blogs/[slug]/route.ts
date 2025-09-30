@@ -3,10 +3,11 @@ import dbConnect from '@/lib/dbConnect';
 import Blog from '@/models/Blog';
 import { verifyToken } from '@/lib/auth';
 
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
     await dbConnect();
-    const blog = await Blog.findOne({ slug: params.slug, published: true });
+    const { slug } = await params;
+    const blog = await Blog.findOne({ slug, published: true });
     if (!blog) {
       return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
     }
@@ -16,7 +17,7 @@ export async function GET(request: Request, { params }: { params: { slug: string
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { slug: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
@@ -29,7 +30,8 @@ export async function PUT(request: Request, { params }: { params: { slug: string
     }
 
     await dbConnect();
-    const blog = await Blog.findOne({ slug: params.slug });
+    const { slug } = await params;
+    const blog = await Blog.findOne({ slug });
     if (!blog) {
       return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
     }
@@ -41,7 +43,7 @@ export async function PUT(request: Request, { params }: { params: { slug: string
 
     const body = await request.json();
     const updatedBlog = await Blog.findOneAndUpdate(
-      { slug: params.slug },
+      { slug },
       { ...body, updatedAt: new Date() },
       { new: true }
     );
@@ -52,7 +54,7 @@ export async function PUT(request: Request, { params }: { params: { slug: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { slug: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
     const token = request.headers.get('authorization')?.replace('Bearer ', '');
     if (!token) {
@@ -65,7 +67,8 @@ export async function DELETE(request: Request, { params }: { params: { slug: str
     }
 
     await dbConnect();
-    const blog = await Blog.findOne({ slug: params.slug });
+    const { slug } = await params;
+    const blog = await Blog.findOne({ slug });
     if (!blog) {
       return NextResponse.json({ error: 'Blog not found' }, { status: 404 });
     }
@@ -75,7 +78,7 @@ export async function DELETE(request: Request, { params }: { params: { slug: str
       return NextResponse.json({ error: 'Not authorized' }, { status: 403 });
     }
 
-    await Blog.findOneAndDelete({ slug: params.slug });
+    await Blog.findOneAndDelete({ slug });
     return NextResponse.json({ message: 'Blog deleted successfully' });
   } catch (error) {
     return NextResponse.json({ error: 'Failed to delete blog' }, { status: 500 });
